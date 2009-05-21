@@ -157,15 +157,6 @@ void decrementGuardRef(	void * volatile *oldRootNodeRef) {
 	return retval;
 }
 
-- (void) printGraph {
-	LGTSMutableDictionaryNode *rootNode = [self stabilizedRootNode];
-	
-	if (rootNode) {
-		rootNode->printGraph();
-		rootNode->release();
-	}
-}
-
 - (id)objectForKey:(id)aKey {
 	id retval = nil;
 	
@@ -265,6 +256,27 @@ void decrementGuardRef(	void * volatile *oldRootNodeRef) {
 - (id) mutableCopy {
 	LGTSMutableDictionaryNode *rootNode = [self stabilizedRootNode];
 	return [[LGTSMutableDictionary alloc] initWithRootNode:rootNode];
+}
+
+#pragma mark -
+#pragma mark Debug functionality
+
+- (void) printGraph {
+	LGTSMutableDictionaryNode *rootNode = [self stabilizedRootNode];
+	
+	if (rootNode) {
+		rootNode->printGraph();
+		rootNode->release();
+	}
+}
+
+- (void) validate {
+	LGTSMutableDictionaryNode *rootNode = [self stabilizedRootNode];
+	
+	if (rootNode) {
+		rootNode->validate();
+		rootNode->release();
+	}
 }
 
 @end
