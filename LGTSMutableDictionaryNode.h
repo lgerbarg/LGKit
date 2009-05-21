@@ -53,9 +53,9 @@ public:
 	uint8_t getWriteable() { return writeable; };
 	void writeProtect();
 	
-	LGTSMutableDictionaryNode *getLeft() { return left; };
+	LGTSMutableDictionaryNode *getLeft();
 	void setLeft(LGTSMutableDictionaryNode *left_);
-	LGTSMutableDictionaryNode *getRight() { return right; };
+	LGTSMutableDictionaryNode *getRight();
 	void setRight(LGTSMutableDictionaryNode *right_);
 	
 	LGTSMutableDictionaryNode *writeableNode(void);

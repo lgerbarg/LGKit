@@ -163,6 +163,22 @@ void LGTSMutableDictionaryNode::refreshCount(void)  {
 	}
 }
 
+LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::getLeft() {
+	if (this) {
+		return left;
+	} else {
+		return NULL;
+	}
+}
+
+LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::getRight() {
+	if (this) {
+		return right;
+	} else {
+		return NULL;
+	}
+}
+
 #pragma mark -
 #pragma mark Data and Key functions
 
