@@ -69,8 +69,6 @@ public:
 	LGTSMutableDictionaryNode *flipColors(void);
 	
 	LGTSMutableDictionaryNode *fixUp(void);
-
-	uint32_t validate(LGTSMutableDictionaryNode *node);
 	
 	NSString *graphColors(void);
 	NSString *graphConnections(void);
@@ -99,6 +97,9 @@ public:
 	LGTSMutableDictionaryNode *insert(id key, id value);
 	LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::remove(id key);
 	
-	uint32_t validate(void);
+	void validate(void);
 	void printGraph(void);
+
+private:
+	uint32_t validate(LGTSMutableDictionaryNode *node);
 };

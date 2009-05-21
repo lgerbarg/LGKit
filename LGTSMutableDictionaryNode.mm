@@ -151,7 +151,7 @@ void LGTSMutableDictionaryNode::setRight(LGTSMutableDictionaryNode *right_)  {
 		setCount(getCount()+right->getCount());
 	}
 }
-	
+
 void LGTSMutableDictionaryNode::refreshCount(void)  {
 	count = 1;
 	if (getRight()) {
@@ -439,8 +439,8 @@ LGTSMutableDictionaryNode * LGTSMutableDictionaryNode::remove(id key) {
 #pragma mark -
 #pragma mark Validation and debugging
 
-uint32_t LGTSMutableDictionaryNode::validate(void) {
-	return validate(this);
+void LGTSMutableDictionaryNode::validate(void) {
+	validate(this);
 }
 
 uint32_t LGTSMutableDictionaryNode::validate(LGTSMutableDictionaryNode *node) {
@@ -464,11 +464,11 @@ uint32_t LGTSMutableDictionaryNode::validate(LGTSMutableDictionaryNode *node) {
 	uint32_t height = 0;
 	
 	if (node->getLeft()) {
-		left_height = node->getLeft()->validate();
+		left_height = validate(node->getLeft());
 	}
 	
 	if (node->getRight()) {
-		right_height = node->getRight()->validate();
+		right_height = validate(node->getRight());
 	}
 	
 	if (left_height != right_height) {
