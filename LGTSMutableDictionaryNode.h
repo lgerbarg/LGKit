@@ -46,6 +46,8 @@ public:
 	
 	NSUInteger getColor() { return color; };
 	void setColor(NSUInteger color_) { color = color_; }
+	bool isRed(LGTSMutableDictionaryNode *node);
+
 	
 	void setKey(id key_);
 	void setData(id data_);

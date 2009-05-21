@@ -179,6 +179,14 @@ LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::getRight() {
 	}
 }
 
+bool LGTSMutableDictionaryNode::isRed(LGTSMutableDictionaryNode *node) {
+	if(node->color) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
 #pragma mark -
 #pragma mark Data and Key functions
 
@@ -228,7 +236,7 @@ LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::moveRedLeft(void) {
 	LGTSMutableDictionaryNode *retval = this->flipColors();
 	
 	if (retval-getRight() && retval->getRight()->getLeft()
-		&& retval->getRight()->getLeft()->getColor() == kLGTSMutableDictionaryNodeColorRed) {
+		&& isRed(retval->getRight()->getLeft())) {
 		LGTSMutableDictionaryNode *temp = retval->getRight()->rotateRight();
 		retval->setRight(temp);
 		retval = retval->rotateLeft();
@@ -242,7 +250,7 @@ LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::moveRedRight(void) {
 	LGTSMutableDictionaryNode *retval = this->flipColors();
 	
 	if (retval->getLeft() && retval->getLeft()->getLeft()
-		&& retval->getLeft()->getLeft()->getColor() == kLGTSMutableDictionaryNodeColorRed) {
+		&& isRed(retval->getLeft()->getLeft())) {
 		retval = retval->rotateRight();
 		retval = retval->flipColors();
 	} 
@@ -252,17 +260,17 @@ LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::moveRedRight(void) {
 LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::fixUp(void) {
 	LGTSMutableDictionaryNode *retval = writeableNode();
 	
-	if (retval->getRight() && retval->getRight()->getColor() == kLGTSMutableDictionaryNodeColorRed) {
+	if (retval->getRight() && isRed(retval->getRight())) {
 		retval = retval->rotateLeft();
 	}
 	
-	if (retval->getLeft() && retval->getLeft()->getColor() == kLGTSMutableDictionaryNodeColorRed
-		&& retval->getLeft()->getLeft() && retval->getLeft()->getLeft()->getColor() == kLGTSMutableDictionaryNodeColorRed) {
+	if (retval->getLeft() && isRed(retval->getLeft())
+		&& retval->getLeft()->getLeft() && isRed(retval->getLeft()->getLeft())) {
 		retval = retval->rotateRight();
 	}
 	
-	if (retval->getLeft() && retval->getLeft()->getColor() == kLGTSMutableDictionaryNodeColorRed 
-		&& retval->getRight() && retval->getRight()->getColor() == kLGTSMutableDictionaryNodeColorRed) {
+	if (retval->getLeft() && isRed(retval->getLeft()) 
+		&& retval->getRight() && isRed(retval->getRight())) {
 		retval = retval->flipColors();
 	}
 	
@@ -367,7 +375,7 @@ LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::remove(LGTSMutableDictiona
 			retval = NULL;
 		}
 	} else {
-		if (retval->getLeft() && retval->getLeft()->getColor() == kLGTSMutableDictionaryNodeColorRed) {
+		if (retval->getLeft() && isRed(retval->getLeft())) {
 			retval = retval->writeableNode();
 			retval = retval->rotateRight();
 		}
@@ -470,8 +478,8 @@ uint32_t LGTSMutableDictionaryNode::validate(LGTSMutableDictionaryNode *node) {
 	}
 	
 	if (node->getLeft() && node->getLeft()-node->getLeft() 
-		&& node->getLeft()->getColor() == kLGTSMutableDictionaryNodeColorRed
-		&& node->getLeft()->getLeft()->getColor() == kLGTSMutableDictionaryNodeColorRed) {
+		&& isRed(node->getLeft())
+		&& isRed(node->getLeft()->getLeft())) {
 		NSLog(@"Double red error");
 	}
 	
@@ -491,7 +499,7 @@ uint32_t LGTSMutableDictionaryNode::validate(LGTSMutableDictionaryNode *node) {
 		NSLog(@"Uneven leg asert");
 	}
 	
-	if (node->getColor() == kLGTSMutableDictionaryNodeColorRed) {
+	if (isRed(node)) {
 		height = left_height + 0;
 	} else {
 		height = left_height + 1;
@@ -517,7 +525,7 @@ void LGTSMutableDictionaryNode::printGraph(void) {
 NSString *LGTSMutableDictionaryNode::graphColors(void) {
 	NSMutableString *str = [[NSMutableString alloc] init];
 	
-	if (getColor() == kLGTSMutableDictionaryNodeColorRed) {
+	if (isRed(this)) {
 		[str appendFormat:@"\tnode [label=\"%@\\n%ld\" color=red, style=filled];\n", key, getRefCount()];
 	} else {
 		[str appendFormat:@"\tnode [label=\"%@\\n%ld\" color=lightblue2, style=filled];\n", key, getRefCount()];
