@@ -337,10 +337,8 @@ LGTSMutableDictionaryNode * LGTSMutableDictionaryNode::removeMinNode(void) {
 	
 	LGTSMutableDictionaryNode *retval = writeableNode();
 	
-	if (((retval->getLeft() && retval->getLeft()->getColor() == kLGTSMutableDictionaryNodeColorBlack)
-			|| !retval->getLeft())
-		&& ((retval->getLeft()->getLeft() && retval->getLeft()->getLeft()->getColor() == kLGTSMutableDictionaryNodeColorBlack)
-			|| !retval->getLeft() || !retval->getLeft()->getLeft())) {
+	if (!isRed(retval->getLeft())
+		&& !isRed(retval->getLeft()->getLeft())) {
 		retval = retval->moveRedLeft();
 	}
 	
@@ -360,10 +358,8 @@ LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::remove(LGTSMutableDictiona
 	
 	if (cmp == NSOrderedAscending) {
 		//FIX THIS
-		if (((retval->getLeft() && retval->getLeft()->getColor() == kLGTSMutableDictionaryNodeColorBlack)
-				|| !retval->getLeft())
-			&& ((retval->getLeft()->getLeft() && retval->getLeft()->getLeft()->getColor() == kLGTSMutableDictionaryNodeColorBlack)
-				|| !retval->getLeft() || !retval->getLeft()->getLeft())) {
+		if (!isRed(retval->getLeft())
+			&& !isRed(retval->getLeft()->getLeft())) {
 			retval = retval->moveRedLeft();
 		}
 		if (retval->getLeft()) {
@@ -384,11 +380,8 @@ LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::remove(LGTSMutableDictiona
 			return NULL;
 		}
 		
-		
-		if (((retval->getRight() && retval->getRight()->getColor() == kLGTSMutableDictionaryNodeColorBlack)
-				|| !retval->getRight()) 
-			&& ((retval->getRight() && retval->getRight()->getLeft() && retval->getRight()->getLeft()->getColor() == kLGTSMutableDictionaryNodeColorBlack)
-				|| !retval->getRight() || !retval->getRight()->getLeft())) {
+		if (!isRed(retval->getRight())
+			&& !isRed(retval->getRight()->getLeft())) {
 			retval = retval->moveRedRight();
 		}
 		
