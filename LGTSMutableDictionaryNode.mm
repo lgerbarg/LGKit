@@ -52,8 +52,8 @@ LGTSMutableDictionaryNode::~LGTSMutableDictionaryNode() {
 	[key release];
 	[data release];
 	
-	if (getLeft()) getLeft()->release(); 
-	if (getRight()) getRight()->release();
+	if (getLeft(this)) getLeft(this)->release(); 
+	if (getRight(this)) getRight(this)->release();
 	
 	//	OSAtomicDecrement32Barrier(&gObjectAllocs);
 }
@@ -83,7 +83,7 @@ LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::writeableNode(void) {
 	if (getWriteable()) {
 		return this;
 	} else {
-		return  new LGTSMutableDictionaryNode(getKey(), getData(), getLeft(), getRight(), getColor());
+		return  new LGTSMutableDictionaryNode(getKey(), getData(), getLeft(this), getRight(this), getColor());
 	}
 }
 
@@ -91,19 +91,19 @@ void LGTSMutableDictionaryNode::writeProtect(void) {
 	if (writeable == 1) {
 		//		assert(refCount == 1);
 		writeable = 0;
-		if (getLeft()) {
-			getLeft()->writeProtect();
+		if (getLeft(this)) {
+			getLeft(this)->writeProtect();
 		}
 		
-		if (getRight()) {
-			getRight()->writeProtect();
+		if (getRight(this)) {
+			getRight(this)->writeProtect();
 		}
 	}
 }
 
 LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::writeableLeftChildNode() {
 //	assert(getWriteable());
-	LGTSMutableDictionaryNode *retval = getLeft()->writeableNode();
+	LGTSMutableDictionaryNode *retval = getLeft(this)->writeableNode();
 	setLeft(retval);
 	
 	return retval;
@@ -111,7 +111,7 @@ LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::writeableLeftChildNode() {
 
 LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::writeableRightChildNode() {
 //	assert(getWriteable());
-	LGTSMutableDictionaryNode *retval = getRight()->writeableNode();
+	LGTSMutableDictionaryNode *retval = getRight(this)->writeableNode();
 	setRight(retval);
 	
 	return retval;
@@ -154,12 +154,12 @@ void LGTSMutableDictionaryNode::setRight(LGTSMutableDictionaryNode *right_)  {
 
 void LGTSMutableDictionaryNode::refreshCount(void)  {
 	count = 1;
-	if (getRight()) {
-		count += getRight()->getCount();
+	if (getRight(this)) {
+		count += getRight(this)->getCount();
 	}
 	
-	if (getLeft()) {
-		count += getLeft()->getCount();
+	if (getLeft(this)) {
+		count += getLeft(this)->getCount();
 	}
 }
 
@@ -171,9 +171,25 @@ LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::getLeft() {
 	}
 }
 
+LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::getLeft(LGTSMutableDictionaryNode *node) {
+	if (node) {
+		return node->left;
+	} else {
+		return NULL;
+	}
+}
+
 LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::getRight() {
 	if (this) {
 		return right;
+	} else {
+		return NULL;
+	}
+}
+
+LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::getRight(LGTSMutableDictionaryNode *node) {
+	if (node) {
+		return node->right;
 	} else {
 		return NULL;
 	}
@@ -212,7 +228,7 @@ LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::rotateLeft(void) {
 	right->setColor(left->getColor());
 	left->setColor(kLGTSMutableDictionaryNodeColorRed);
 	
-	left->setRight(right->getLeft());
+	left->setRight(getLeft(right));
 	right->setLeft(left);
 		
 	return right;
@@ -226,7 +242,7 @@ LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::rotateRight(void) {
 	left->setColor(right->getColor());
 	right->setColor(kLGTSMutableDictionaryNodeColorRed);
 
-	right->setLeft(left->getRight());
+	right->setLeft(getRight(left));
 	left->setRight(right);
 
 	return left;
@@ -235,8 +251,8 @@ LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::rotateRight(void) {
 LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::moveRedLeft(void) {                      
 	LGTSMutableDictionaryNode *retval = this->flipColors();
 	
-	if (isRed(retval->getRight()->getLeft())) {
-		LGTSMutableDictionaryNode *temp = retval->getRight()->rotateRight();
+	if (isRed(getLeft(getRight(retval)))) {
+		LGTSMutableDictionaryNode *temp = getRight(retval)->rotateRight();
 		retval->setRight(temp);
 		retval = retval->rotateLeft();
 		retval = retval->flipColors();
@@ -248,7 +264,7 @@ LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::moveRedLeft(void) {
 LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::moveRedRight(void) {                      
 	LGTSMutableDictionaryNode *retval = this->flipColors();
 	
-	if (isRed(retval->getLeft()->getLeft())) {
+	if (isRed(getLeft(getLeft(retval)))) {
 		retval = retval->rotateRight();
 		retval = retval->flipColors();
 	} 
@@ -258,17 +274,17 @@ LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::moveRedRight(void) {
 LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::fixUp(void) {
 	LGTSMutableDictionaryNode *retval = writeableNode();
 	
-	if (isRed(retval->getRight())) {
+	if (isRed(getRight(retval))) {
 		retval = retval->rotateLeft();
 	}
 	
-	if (isRed(retval->getLeft())
-		&& isRed(retval->getLeft()->getLeft())) {
+	if (isRed(getLeft(retval))
+		&& isRed(getLeft(getLeft(retval)))) {
 		retval = retval->rotateRight();
 	}
 	
-	if (isRed(retval->getLeft()) 
-		&& isRed(retval->getRight())) {
+	if (isRed(getLeft(retval)) 
+		&& isRed(getRight(retval))) {
 		retval = retval->flipColors();
 	}
 	
@@ -310,10 +326,10 @@ LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::insert(LGTSMutableDictiona
 		retval->setData(value);
 		return retval;
 	} else if (cmp == NSOrderedAscending) {
-		temp = insert(original->getLeft(), key, value);
+		temp = insert(getLeft(original), key, value);
 		retval->setLeft(temp);
 	} else if (cmp == NSOrderedDescending) {
-		temp = insert(original->getRight(), key, value);
+		temp = insert(getRight(original), key, value);
 		retval->setRight(temp);
 	}
 	
@@ -321,8 +337,8 @@ LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::insert(LGTSMutableDictiona
 }
 
 LGTSMutableDictionaryNode * LGTSMutableDictionaryNode::minNode(void) {
-	if (getLeft()) {
-		return getLeft()->minNode();
+	if (getLeft(this)) {
+		return getLeft(this)->minNode();
 	} else {
 		return this;
 	}
@@ -331,18 +347,18 @@ LGTSMutableDictionaryNode * LGTSMutableDictionaryNode::minNode(void) {
 
 LGTSMutableDictionaryNode * LGTSMutableDictionaryNode::removeMinNode(void) {
 
-	if (!getLeft()) {
+	if (!getLeft(this)) {
 		return NULL;
 	}
 	
 	LGTSMutableDictionaryNode *retval = writeableNode();
 	
-	if (!isRed(retval->getLeft())
-		&& !isRed(retval->getLeft()->getLeft())) {
+	if (!isRed(getLeft(retval))
+		&& !isRed(getLeft(getLeft(retval)))) {
 		retval = retval->moveRedLeft();
 	}
 	
-	retval->setLeft(retval->getLeft()->removeMinNode());
+	retval->setLeft(getLeft(retval)->removeMinNode());
 	
 	return retval->fixUp();
 }
@@ -357,31 +373,30 @@ LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::remove(LGTSMutableDictiona
 	}
 	
 	if (cmp == NSOrderedAscending) {
-		//FIX THIS
-		if (!isRed(retval->getLeft())
-			&& !isRed(retval->getLeft()->getLeft())) {
+		if (!isRed(getLeft(retval))
+			&& !isRed(getLeft(getLeft(retval)))) {
 			retval = retval->moveRedLeft();
 		}
-		if (retval->getLeft()) {
+		if (getLeft(retval)) {
 			retval = retval->writeableNode();
-			retval->setLeft(remove(retval->getLeft(), key));
+			retval->setLeft(remove(getLeft(retval), key));
 		} else {
 			retval = NULL;
 		}
 	} else {
-		if (isRed(retval->getLeft())) {
+		if (isRed(getLeft(retval))) {
 			retval = retval->writeableNode();
 			retval = retval->rotateRight();
 		}
 			
 		NSComparisonResult cmp = [key compare:retval->getKey()];
 
-		if (cmp == NSOrderedSame && !retval->getRight()) {
+		if (cmp == NSOrderedSame && !getRight(retval)) {
 			return NULL;
 		}
 		
-		if (!isRed(retval->getRight())
-			&& !isRed(retval->getRight()->getLeft())) {
+		if (!isRed(getRight(retval))
+			&& !isRed(getLeft(getRight(retval)))) {
 			retval = retval->moveRedRight();
 		}
 		
@@ -389,16 +404,16 @@ LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::remove(LGTSMutableDictiona
 
 		if (cmp == NSOrderedSame) {
 			retval = retval->writeableNode();
-			LGTSMutableDictionaryNode *temp = retval->getRight()->minNode();
+			LGTSMutableDictionaryNode *temp = getRight(retval)->minNode();
 			
 			retval->setKey(temp->getKey());
 			retval->setData(temp->getData());
-			retval->setRight(retval->getRight()->removeMinNode());
+			retval->setRight(getRight(retval)->removeMinNode());
 			
 		} else {
-			if (retval->getRight()) {
+			if (getRight(retval)) {
 				retval = retval->writeableNode();
-				retval->setRight(remove(retval->getRight(), key));
+				retval->setRight(remove(getRight(retval), key));
 			}
 		}
 	}
@@ -432,9 +447,9 @@ LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::nodeForKey(id key) {
 		if (cmp == NSOrderedSame) {
 			return x;
 		} else if (cmp == NSOrderedAscending) {
-			x = x->getLeft();
+			x = getLeft(x);
 		} else if (cmp == NSOrderedDescending) {
-			x = x->getRight();
+			x = getRight(x);
 		}
 	} 
 	return NULL; 
@@ -459,17 +474,17 @@ void LGTSMutableDictionaryNode::validate(void) {
 }
 
 uint32_t LGTSMutableDictionaryNode::validate(LGTSMutableDictionaryNode *node) {
-	if (node->getRight() && !node->getLeft()) {
+	if (getRight(node) && !getLeft(node)) {
 		NSLog(@"Right lean error");
 	}
 	
-	if (node->getRight() && node->getLeft()
-		&& node->getRight()->getColor() != node->getRight()->getColor()) {
+	if (getRight(node) && getLeft(node)
+		&& getRight(node)->getColor() != getRight(node)->getColor()) {
 		NSLog(@"Sibling color error");
 	}
 	
-	if (isRed(node->getLeft())
-		&&	isRed(node->getLeft()->getLeft())) {
+	if (isRed(getLeft(node))
+		&&	isRed(getLeft(getLeft(node)))) {
 		NSLog(@"Double red error");
 	}
 	
@@ -477,12 +492,12 @@ uint32_t LGTSMutableDictionaryNode::validate(LGTSMutableDictionaryNode *node) {
 	uint32_t right_height = 0;
 	uint32_t height = 0;
 	
-	if (node->getLeft()) {
-		left_height = validate(node->getLeft());
+	if (getLeft(node)) {
+		left_height = validate(getLeft(node));
 	}
 	
-	if (node->getRight()) {
-		right_height = validate(node->getRight());
+	if (getRight(node)) {
+		right_height = validate(getRight(node));
 	}
 	
 	if (left_height != right_height) {
@@ -523,12 +538,12 @@ NSString *LGTSMutableDictionaryNode::graphColors(void) {
 	
 	[str appendFormat:@"\t\"%lx\";\n", this];
 	
-	if (getLeft()) {
-		[str appendString:getLeft()->graphColors()];
+	if (getLeft(this)) {
+		[str appendString:getLeft(this)->graphColors()];
 	}
 	
-	if (getRight()) {
-		[str appendString:getRight()->graphColors()];
+	if (getRight(this)) {
+		[str appendString:getRight(this)->graphColors()];
 	}
 	
 	return [str autorelease];
@@ -537,20 +552,20 @@ NSString *LGTSMutableDictionaryNode::graphColors(void) {
 NSString *LGTSMutableDictionaryNode::graphConnections(void) {
 	NSMutableString *str = [[NSMutableString alloc] init];
 	
-	if (getLeft()) {
-		[str appendFormat:@"\t\"%lx\" -> \"%lx\"[ label = \"L\" ];\n", this, getLeft()];
+	if (getLeft(this)) {
+		[str appendFormat:@"\t\"%lx\" -> \"%lx\"[ label = \"L\" ];\n", this, getLeft(this)];
 	}
 	
-	if (getRight()) {
-		[str appendFormat:@"\t\"%lx\" -> \"%lx\" [ label = \"R\" ];\n", this, getRight()];
+	if (getRight(this)) {
+		[str appendFormat:@"\t\"%lx\" -> \"%lx\" [ label = \"R\" ];\n", this, getRight(this)];
 	}
 	
-	if (getLeft()) {
-		[str appendString:getLeft()->graphConnections()];
+	if (getLeft(this)) {
+		[str appendString:getLeft(this)->graphConnections()];
 	}
 	
-	if (getRight()) {
-		[str appendString:getRight()->graphConnections()];
+	if (getRight(this)) {
+		[str appendString:getRight(this)->graphConnections()];
 	}
 	
 	return [str autorelease];

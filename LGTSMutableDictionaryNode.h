@@ -52,13 +52,11 @@ public:
 	void setKey(id key_);
 	void setData(id data_);
 	
+	LGTSMutableDictionaryNode *getLeft();
+	LGTSMutableDictionaryNode *getRight();
+	
 	uint8_t getWriteable() { return writeable; };
 	void writeProtect();
-	
-	LGTSMutableDictionaryNode *getLeft();
-	void setLeft(LGTSMutableDictionaryNode *left_);
-	LGTSMutableDictionaryNode *getRight();
-	void setRight(LGTSMutableDictionaryNode *right_);
 	
 	LGTSMutableDictionaryNode *writeableNode(void);
 	LGTSMutableDictionaryNode *writeableLeftChildNode(void);
@@ -104,4 +102,9 @@ public:
 
 private:
 	uint32_t validate(LGTSMutableDictionaryNode *node);
+	
+	LGTSMutableDictionaryNode *getLeft(LGTSMutableDictionaryNode *node);
+	void setLeft(LGTSMutableDictionaryNode *left_);
+	LGTSMutableDictionaryNode *getRight(LGTSMutableDictionaryNode *node);
+	void setRight(LGTSMutableDictionaryNode *right_);
 };
