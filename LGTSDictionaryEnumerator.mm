@@ -33,12 +33,14 @@
 		objectEnumerator = objectEnumerator_;
 		LGTSMutableDictionaryNode * currentNode = node;
 		nodes[nodeCount] = currentNode;
-		currentNode = currentNode->getLeft();
-
-		while (currentNode) {
-			nodeCount++;
-			nodes[nodeCount] = currentNode;
+		if (currentNode) {
 			currentNode = currentNode->getLeft();
+
+			while (currentNode) {
+				nodeCount++;
+				nodes[nodeCount] = currentNode;
+				currentNode = currentNode->getLeft();
+			}
 		}
 	}
 	
@@ -54,7 +56,7 @@
 - (id)nextObject {
 	id retval = nil;
 	
-	if (nodeCount >= 0) {
+	if (nodeCount >= 0 && nodes[0]) {
 		if (objectEnumerator) {
 			retval = nodes[nodeCount]->getData();
 		} else {
@@ -91,7 +93,7 @@
 - (NSArray *)allObjects {
 	NSMutableArray *retval = [NSMutableArray array];
 	
-	while (nodeCount >= 0) {
+	while (nodeCount >= 0 && nodes[0]) {
 		if (objectEnumerator) {
 			[retval addObject:nodes[nodeCount]->getData()];
 		} else {
@@ -134,7 +136,7 @@
 		state->mutationsPtr = (unsigned long *)self;
     }
     
-    while (nodeCount >= 0 && batchCount < len) {
+    while (nodeCount >= 0 && nodes[0] && batchCount < len) {
 		if (objectEnumerator) {
 			stackbuf[batchCount] = nodes[nodeCount]->getData();
 		} else {
