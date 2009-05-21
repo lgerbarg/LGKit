@@ -180,7 +180,7 @@ LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::getRight() {
 }
 
 bool LGTSMutableDictionaryNode::isRed(LGTSMutableDictionaryNode *node) {
-	if(node->color) {
+	if(node && node->color) {
 		return true;
 	} else {
 		return false;
@@ -235,8 +235,7 @@ LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::rotateRight(void) {
 LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::moveRedLeft(void) {                      
 	LGTSMutableDictionaryNode *retval = this->flipColors();
 	
-	if (retval-getRight() && retval->getRight()->getLeft()
-		&& isRed(retval->getRight()->getLeft())) {
+	if (isRed(retval->getRight()->getLeft())) {
 		LGTSMutableDictionaryNode *temp = retval->getRight()->rotateRight();
 		retval->setRight(temp);
 		retval = retval->rotateLeft();
@@ -249,8 +248,7 @@ LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::moveRedLeft(void) {
 LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::moveRedRight(void) {                      
 	LGTSMutableDictionaryNode *retval = this->flipColors();
 	
-	if (retval->getLeft() && retval->getLeft()->getLeft()
-		&& isRed(retval->getLeft()->getLeft())) {
+	if (isRed(retval->getLeft()->getLeft())) {
 		retval = retval->rotateRight();
 		retval = retval->flipColors();
 	} 
@@ -260,17 +258,17 @@ LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::moveRedRight(void) {
 LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::fixUp(void) {
 	LGTSMutableDictionaryNode *retval = writeableNode();
 	
-	if (retval->getRight() && isRed(retval->getRight())) {
+	if (isRed(retval->getRight())) {
 		retval = retval->rotateLeft();
 	}
 	
-	if (retval->getLeft() && isRed(retval->getLeft())
-		&& retval->getLeft()->getLeft() && isRed(retval->getLeft()->getLeft())) {
+	if (isRed(retval->getLeft())
+		&& isRed(retval->getLeft()->getLeft())) {
 		retval = retval->rotateRight();
 	}
 	
-	if (retval->getLeft() && isRed(retval->getLeft()) 
-		&& retval->getRight() && isRed(retval->getRight())) {
+	if (isRed(retval->getLeft()) 
+		&& isRed(retval->getRight())) {
 		retval = retval->flipColors();
 	}
 	
@@ -375,7 +373,7 @@ LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::remove(LGTSMutableDictiona
 			retval = NULL;
 		}
 	} else {
-		if (retval->getLeft() && isRed(retval->getLeft())) {
+		if (isRed(retval->getLeft())) {
 			retval = retval->writeableNode();
 			retval = retval->rotateRight();
 		}
@@ -477,9 +475,8 @@ uint32_t LGTSMutableDictionaryNode::validate(LGTSMutableDictionaryNode *node) {
 		NSLog(@"Sibling color error");
 	}
 	
-	if (node->getLeft() && node->getLeft()-node->getLeft() 
-		&& isRed(node->getLeft())
-		&& isRed(node->getLeft()->getLeft())) {
+	if (isRed(node->getLeft())
+		&&	isRed(node->getLeft()->getLeft())) {
 		NSLog(@"Double red error");
 	}
 	
