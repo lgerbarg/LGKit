@@ -14,6 +14,7 @@
    limitations under the License.
 */
 
+
 //
 //  LGTSMutableDictionary.m
 //  LGTSMutableDictionary
@@ -52,6 +53,8 @@
 #pragma mark -
 #pragma mark Utility functions
 
+#if 0
+
 - (LGTSMutableDictionaryNode *) stabilizedRootNode {
 	OSSpinLockLock(&rootLock);
 	LGTSMutableDictionaryNode *retval = (LGTSMutableDictionaryNode *)CXXHorrorShow;
@@ -78,6 +81,69 @@
 	return retval;
 
 }
+
+#else
+
+static inline
+void incrementGuardRef(	void * volatile *oldRootNodeRef) {
+	BOOL rootNodeAcquired = NO;
+	
+	while (!rootNodeAcquired) {
+		intptr_t oldRootNode = (volatile intptr_t)(*oldRootNodeRef);
+		intptr_t currentRefCount = 15 & oldRootNode;
+		
+		if (currentRefCount != 15) {
+			intptr_t newRootNode = ((intptr_t)(-16) & oldRootNode ) | (currentRefCount+1);
+			rootNodeAcquired = OSAtomicCompareAndSwapPtrBarrier((void *)oldRootNode, (void *)newRootNode, oldRootNodeRef);
+		}
+	}
+}
+
+static inline
+void decrementGuardRef(	void * volatile *oldRootNodeRef) {
+	BOOL rootNodeAcquired = NO;
+	
+	while (!rootNodeAcquired) {
+		intptr_t oldRootNode = (volatile intptr_t)(*oldRootNodeRef);
+		intptr_t currentRefCount = 15 & oldRootNode;
+		assert(currentRefCount != 0x0000);
+		
+		intptr_t newRootNode = ((intptr_t)(-16) & oldRootNode ) | (currentRefCount-1);
+		rootNodeAcquired = OSAtomicCompareAndSwapPtrBarrier((void *)oldRootNode, (void *)newRootNode, oldRootNodeRef);
+	}
+}
+
+- (LGTSMutableDictionaryNode *) stabilizedRootNode {
+	incrementGuardRef(&CXXHorrorShow);
+	LGTSMutableDictionaryNode *retval = (LGTSMutableDictionaryNode *)((intptr_t)CXXHorrorShow & (intptr_t)(-16));
+	if (retval) retval->retain();
+
+	decrementGuardRef(&CXXHorrorShow);
+	
+	return retval;
+}
+
+- (BOOL) replaceRootNode:(LGTSMutableDictionaryNode *)rootNode withNewRootNode:(LGTSMutableDictionaryNode *)newRoot {
+	BOOL retval = NO;
+	BOOL swapDone = NO;
+	
+	while (!swapDone) {
+		if ((intptr_t)rootNode == ((volatile intptr_t)CXXHorrorShow & (intptr_t)(-16))) {
+			if (OSAtomicCompareAndSwapPtrBarrier(rootNode, newRoot, &CXXHorrorShow)) {
+				if (rootNode) rootNode->release();
+				retval = YES;
+				swapDone = YES;
+			}
+		} else {
+			//The root changed, we need to rollback
+			swapDone = YES;
+		}
+	}
+	
+	return retval;
+}
+
+#endif
 
 - (NSUInteger)count {
 	LGTSMutableDictionaryNode *rootNode = [self stabilizedRootNode];
