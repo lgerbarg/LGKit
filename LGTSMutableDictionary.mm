@@ -235,7 +235,7 @@ void decrementGuardRef(	void * volatile *oldRootNodeRef) {
 		
 		replaceSuccessful = [self replaceRootNode:rootNode withNewRootNode:newRoot];
 		
-		if (!replaceSuccessful) {
+		if (!replaceSuccessful && newRoot) {
 			newRoot->release();
 		}
 		if (rootNode) rootNode->release();
