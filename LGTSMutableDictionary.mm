@@ -45,7 +45,7 @@
 
 - (void) dealloc {
 	LGTSMutableDictionaryNode *rootNode = (LGTSMutableDictionaryNode *)CXXHorrorShow;
-	if (rootNode) rootNode->release();
+	if (rootNode) rootNode->release(rootNode);
 
 	[super dealloc];
 }
@@ -116,7 +116,7 @@ void decrementGuardRef(	void * volatile *oldRootNodeRef) {
 - (LGTSMutableDictionaryNode *) stabilizedRootNode {
 	incrementGuardRef(&CXXHorrorShow);
 	LGTSMutableDictionaryNode *retval = (LGTSMutableDictionaryNode *)((intptr_t)CXXHorrorShow & (intptr_t)(-16));
-	if (retval) retval->retain();
+	if (retval) retval->retain(retval);
 
 	decrementGuardRef(&CXXHorrorShow);
 	
@@ -130,7 +130,7 @@ void decrementGuardRef(	void * volatile *oldRootNodeRef) {
 	while (!swapDone) {
 		if ((intptr_t)rootNode == ((volatile intptr_t)CXXHorrorShow & (intptr_t)(-16))) {
 			if (OSAtomicCompareAndSwapPtrBarrier(rootNode, newRoot, &CXXHorrorShow)) {
-				if (rootNode) rootNode->release();
+				if (rootNode) rootNode->release(rootNode);
 				retval = YES;
 				swapDone = YES;
 			}
@@ -150,8 +150,8 @@ void decrementGuardRef(	void * volatile *oldRootNodeRef) {
 	NSUInteger retval = 0;
 	
 	if (rootNode) {
-		retval = rootNode->getCount();
-		rootNode->release();
+		retval = rootNode->getCount(rootNode);
+		rootNode->release(rootNode);
 	}
 	
 	return retval;
@@ -163,11 +163,11 @@ void decrementGuardRef(	void * volatile *oldRootNodeRef) {
 	LGTSMutableDictionaryNode *rootNode = [self stabilizedRootNode];
 	
 	if (rootNode) {
-		LGTSMutableDictionaryNode *dataNode = rootNode->nodeForKey(aKey);
+		LGTSMutableDictionaryNode *dataNode = rootNode->nodeForKey(rootNode, aKey);
 		if (dataNode) {
-			retval = dataNode->getKey();
+			retval = dataNode->getKey(dataNode);
 		}
-		rootNode->release();
+		rootNode->release(rootNode);
 	}
 	
 	return retval;
@@ -213,15 +213,15 @@ void decrementGuardRef(	void * volatile *oldRootNodeRef) {
 
 	while (!replaceSuccessful) {
 		LGTSMutableDictionaryNode *rootNode = [self stabilizedRootNode];
-		LGTSMutableDictionaryNode *newRoot = rootNode->insert([[aKey copy] autorelease], anObject);
+		LGTSMutableDictionaryNode *newRoot = rootNode->insert(rootNode, [[aKey copy] autorelease], anObject);
 		//assert(newRoot != rootNode);
 
 		replaceSuccessful = [self replaceRootNode:rootNode withNewRootNode:newRoot];
 
 		if (!replaceSuccessful) {
-			newRoot->release();
+			newRoot->release(newRoot);
 		}
-		if (rootNode) rootNode->release();
+		if (rootNode) rootNode->release(rootNode);
 	}
 }
 
@@ -230,15 +230,15 @@ void decrementGuardRef(	void * volatile *oldRootNodeRef) {
 	
 	while (!replaceSuccessful) {
 		LGTSMutableDictionaryNode *rootNode = [self stabilizedRootNode];
-		LGTSMutableDictionaryNode *newRoot = rootNode->remove(aKey);
+		LGTSMutableDictionaryNode *newRoot = rootNode->remove(rootNode, aKey);
 		//assert(newRoot != rootNode);
 		
 		replaceSuccessful = [self replaceRootNode:rootNode withNewRootNode:newRoot];
 		
 		if (!replaceSuccessful && newRoot) {
-			newRoot->release();
+			newRoot->release(newRoot);
 		}
-		if (rootNode) rootNode->release();
+		if (rootNode) rootNode->release(rootNode);
 	}
 	
 }
@@ -265,8 +265,8 @@ void decrementGuardRef(	void * volatile *oldRootNodeRef) {
 	LGTSMutableDictionaryNode *rootNode = [self stabilizedRootNode];
 	
 	if (rootNode) {
-		rootNode->printGraph();
-		rootNode->release();
+		rootNode->printGraph(rootNode);
+		rootNode->release(rootNode);
 	}
 }
 
@@ -274,8 +274,8 @@ void decrementGuardRef(	void * volatile *oldRootNodeRef) {
 	LGTSMutableDictionaryNode *rootNode = [self stabilizedRootNode];
 	
 	if (rootNode) {
-		rootNode->validate();
-		rootNode->release();
+		rootNode->validate(rootNode);
+		rootNode->release(rootNode);
 	}
 }
 

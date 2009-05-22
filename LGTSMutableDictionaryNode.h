@@ -37,74 +37,70 @@ class LGTSMutableDictionaryNode {
 	uint8_t writeable:1;
 
 public:
-
-	void refreshCount(void);
+	NSUInteger getCount(LGTSMutableDictionaryNode *node);
 	
-	NSUInteger getCount() { return count; };
-	void setCount(NSUInteger count_) { count = count_; }
-	volatile int32_t getRefCount() { return refCount; };
-	
-	NSUInteger getColor() { return color; };
-	void setColor(NSUInteger color_) { color = color_; }
-	bool isRed(LGTSMutableDictionaryNode *node);
-
-	
-	void setKey(id key_);
-	void setData(id data_);
-	
-	LGTSMutableDictionaryNode *getLeft();
-	LGTSMutableDictionaryNode *getRight();
-	
-	uint8_t getWriteable() { return writeable; };
-	void writeProtect();
-	
-	LGTSMutableDictionaryNode *writeableNode(void);
-	LGTSMutableDictionaryNode *writeableLeftChildNode(void);
-	LGTSMutableDictionaryNode *writeableRightChildNode(void);
-	
-	LGTSMutableDictionaryNode *moveRedLeft(void);
-	LGTSMutableDictionaryNode *moveRedRight(void);   
-	LGTSMutableDictionaryNode *rotateLeft(void);
-	LGTSMutableDictionaryNode *rotateRight(void);
-	LGTSMutableDictionaryNode *flipColors(void);
-	
-	LGTSMutableDictionaryNode *fixUp(void);
-	
-	NSString *graphColors(void);
-	NSString *graphConnections(void);
+	void setKey(LGTSMutableDictionaryNode *node, id key_);
+	void setData(LGTSMutableDictionaryNode *node, id data_);
 	
 	LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::remove(LGTSMutableDictionaryNode *node, id key);
-	LGTSMutableDictionaryNode *insert(LGTSMutableDictionaryNode *originalp, id key, id value);
 
-	LGTSMutableDictionaryNode *minNode(void);
-	LGTSMutableDictionaryNode *removeMinNode(void);
+	LGTSMutableDictionaryNode *insert(LGTSMutableDictionaryNode *original, id key, id value);
 	
 	LGTSMutableDictionaryNode(id K, id D,
 							  LGTSMutableDictionaryNode *L, LGTSMutableDictionaryNode *R, 
 							  uint8_t C);
 	~LGTSMutableDictionaryNode();
-
-	void retain();
-	void release();
-
-
-
-
-	id getKey() { return key; };
-	id getData() { return data; };
-	
-	LGTSMutableDictionaryNode *nodeForKey(id key);
-	LGTSMutableDictionaryNode *insert(id key, id value);
-	LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::remove(id key);
-	
-	void validate(void);
-	void printGraph(void);
-
-private:
-	uint32_t validate(LGTSMutableDictionaryNode *node);
 	
 	LGTSMutableDictionaryNode *getLeft(LGTSMutableDictionaryNode *node);
-	void setLeft(LGTSMutableDictionaryNode *left_);
 	LGTSMutableDictionaryNode *getRight(LGTSMutableDictionaryNode *node);
-	void setRight(LGTSMutableDictionaryNode *right_);
+
+	void retain(LGTSMutableDictionaryNode *node);
+	void release(LGTSMutableDictionaryNode *node);
+
+	id getKey(LGTSMutableDictionaryNode *node);
+	id getData(LGTSMutableDictionaryNode *node);
+	
+	LGTSMutableDictionaryNode *nodeForKey(LGTSMutableDictionaryNode *node, id key);
+	
+	uint32_t validate(LGTSMutableDictionaryNode *node);
+
+	void printGraph(LGTSMutableDictionaryNode *node);
+
+private:
+	void setLeft(LGTSMutableDictionaryNode *node, LGTSMutableDictionaryNode *left_);
+	void LGTSMutableDictionaryNode::setRight(LGTSMutableDictionaryNode *node, LGTSMutableDictionaryNode *right_);
+	
+	LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::removeInternal(LGTSMutableDictionaryNode *node, id key);
+	
+	NSUInteger getColor(LGTSMutableDictionaryNode *node);
+	void setColor(LGTSMutableDictionaryNode *node, NSUInteger color_);
+	bool isRed(LGTSMutableDictionaryNode *node);
+	
+	void setCount(LGTSMutableDictionaryNode *node, NSUInteger count_);
+	volatile int32_t getRefCount(LGTSMutableDictionaryNode *node);
+	
+	uint8_t getWriteable(LGTSMutableDictionaryNode *node);
+	
+	void refreshCount(LGTSMutableDictionaryNode *node);
+	void writeProtect(LGTSMutableDictionaryNode *node);
+	
+	NSString *graphColors(LGTSMutableDictionaryNode *node);
+	NSString *graphConnections(LGTSMutableDictionaryNode *node);
+	
+	LGTSMutableDictionaryNode *insertInternal(LGTSMutableDictionaryNode *original, id key, id value);
+
+	LGTSMutableDictionaryNode *fixUp(LGTSMutableDictionaryNode *node);
+
+	LGTSMutableDictionaryNode *minNode(LGTSMutableDictionaryNode *node);
+	LGTSMutableDictionaryNode *removeMinNode(LGTSMutableDictionaryNode *node);
+	
+	LGTSMutableDictionaryNode *writeableNode(LGTSMutableDictionaryNode  *node);
+	LGTSMutableDictionaryNode *writeableLeftChildNode(LGTSMutableDictionaryNode  *node);
+	LGTSMutableDictionaryNode *writeableRightChildNode(LGTSMutableDictionaryNode  *node);
+	
+	LGTSMutableDictionaryNode *moveRedLeft(LGTSMutableDictionaryNode  *node);
+	LGTSMutableDictionaryNode *moveRedRight(LGTSMutableDictionaryNode  *node);   
+	LGTSMutableDictionaryNode *rotateLeft(LGTSMutableDictionaryNode  *node);
+	LGTSMutableDictionaryNode *rotateRight(LGTSMutableDictionaryNode  *node);
+	LGTSMutableDictionaryNode *flipColors(LGTSMutableDictionaryNode  *node);
 };
