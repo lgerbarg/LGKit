@@ -166,6 +166,8 @@ void decrementGuardRef(	void * volatile *oldRootNodeRef) {
 		LGTSMutableDictionaryNode *dataNode = rootNode->nodeForKey(rootNode, aKey);
 		if (dataNode) {
 			retval = dataNode->getKey(dataNode);
+			//Bump the ref on the node before we drop the root node
+			[[retval retain] autorelease];
 		}
 		rootNode->release(rootNode);
 	}
