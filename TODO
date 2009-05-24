@@ -1,0 +1,3 @@
+LGTMDN_Left & Right should not be exported, but that requires moving iteration into the node functions
+Significant amount of time is spent in recursive function prologs and epilogs, the recursion is unwindable
+Significant time is spent pointer chasing, that could be improved with a custom allocator
