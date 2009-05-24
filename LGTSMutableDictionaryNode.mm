@@ -36,24 +36,34 @@ const uint8_t kLGTSMutableDictionaryNodeColorRed = 1;
 #pragma mark -
 #pragma mark Constructor and Destructor
 
-LGTSMutableDictionaryNode::LGTSMutableDictionaryNode(id K, id D,
-						  LGTSMutableDictionaryNode *L, LGTSMutableDictionaryNode *R, 
-													 uint8_t C) :
-data(nil), key(nil), left(0), right(0), writeable(1),
-color(C), refCount(1), count(1) {
-	setKey(this, K);
-	setData(this, D);
-	setLeft(this, L);
-	setRight(this, R);
-//	OSAtomicIncrement32Barrier(&gObjectAllocs);
+LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::create(id K, id D, 
+										 LGTSMutableDictionaryNode *L, LGTSMutableDictionaryNode *R,
+										 uint8_t C) {
+	LGTSMutableDictionaryNode *retval = (LGTSMutableDictionaryNode *)malloc(sizeof(LGTSMutableDictionaryNode));
+	retval->data = nil;
+	retval->key = nil;
+	retval->left = NULL;
+	retval->right = NULL;
+	retval->color = C;
+	retval->count = 1;
+	retval->refCount = 1;
+	retval->writeable = 1;
+	setKey(retval, K);
+	setData(retval, D);
+	setLeft(retval, L);
+	setRight(retval, R);
+	
+	return retval;
 }
 
-LGTSMutableDictionaryNode::~LGTSMutableDictionaryNode() {
-	[key release];
-	[data release];
+void LGTSMutableDictionaryNode::destroy(LGTSMutableDictionaryNode *node) {
+	[node->key release];
+	[node->data release];
 	
-	if (getLeft(this)) release(getLeft(this)); 
-	if (getRight(this)) release(getRight(this));
+	if (getLeft(node)) release(getLeft(node)); 
+	if (getRight(node)) release(getRight(node));
+	
+	free(node);
 	
 	//	OSAtomicDecrement32Barrier(&gObjectAllocs);
 }
@@ -70,7 +80,7 @@ void LGTSMutableDictionaryNode::retain(LGTSMutableDictionaryNode *node) {
 void LGTSMutableDictionaryNode::release(LGTSMutableDictionaryNode *node) {
 	if (!getWriteable(node)) {
 		if (OSAtomicDecrement32Barrier(&node->refCount) == 0) {
-			delete node;
+			destroy(node);
 		}
 	}
 }
@@ -102,7 +112,7 @@ LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::writeableNode(LGTSMutableD
 	if (getWriteable(node)) {
 		return node;
 	} else {
-		return  new LGTSMutableDictionaryNode(getKey(node), getData(node), getLeft(node), getRight(node), getColor(node));
+		return create(getKey(node), getData(node), getLeft(node), getRight(node), getColor(node));
 	}
 }
 
@@ -328,7 +338,7 @@ LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::insertInternal(LGTSMutable
 	LGTSMutableDictionaryNode *retval, *temp;
 	
 	if (original == NULL) {
-		retval = new LGTSMutableDictionaryNode(key, value, NULL, NULL, kLGTSMutableDictionaryNodeColorRed);
+		retval = create(key, value, NULL, NULL, kLGTSMutableDictionaryNodeColorRed);
 		
 		return retval;
 	}

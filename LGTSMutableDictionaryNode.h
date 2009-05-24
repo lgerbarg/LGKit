@@ -46,10 +46,10 @@ public:
 
 	LGTSMutableDictionaryNode *insert(LGTSMutableDictionaryNode *original, id key, id value);
 	
-	LGTSMutableDictionaryNode(id K, id D,
-							  LGTSMutableDictionaryNode *L, LGTSMutableDictionaryNode *R, 
-							  uint8_t C);
-	~LGTSMutableDictionaryNode();
+	LGTSMutableDictionaryNode *LGTSMutableDictionaryNode::create(id K, id D, 
+																 LGTSMutableDictionaryNode *L, LGTSMutableDictionaryNode *R,
+																 uint8_t C);
+	void LGTSMutableDictionaryNode::destroy(LGTSMutableDictionaryNode *node);
 	
 	LGTSMutableDictionaryNode *getLeft(LGTSMutableDictionaryNode *node);
 	LGTSMutableDictionaryNode *getRight(LGTSMutableDictionaryNode *node);
