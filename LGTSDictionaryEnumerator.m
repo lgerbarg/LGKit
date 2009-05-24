@@ -22,7 +22,7 @@
 //  Copyright 2009 __MyCompanyName__. All rights reserved.
 //
 
-#import "LGTSDictionaryEnumerator.h"s
+#import "LGTSDictionaryEnumerator.h"
 
 @implementation LGTSDictionaryEnumerator
 
@@ -34,12 +34,12 @@
 		LGTSMutableDictionaryNode * currentNode = node;
 		nodes[nodeCount] = currentNode;
 		if (currentNode) {
-			currentNode = currentNode->getLeft(currentNode);
+			currentNode = LGTSMDN_Left(currentNode);
 
 			while (currentNode) {
 				nodeCount++;
 				nodes[nodeCount] = currentNode;
-				currentNode = currentNode->getLeft(currentNode);
+				currentNode = LGTSMDN_Left(currentNode);
 			}
 		}
 	}
@@ -48,7 +48,7 @@
 }
 
 - (void) dealloc {
-	if (nodes[0]) nodes[0]->release(nodes[0]);
+	if (nodes[0]) LGTSMDN_release(nodes[0]);
 	
 	[super dealloc];
 }
@@ -58,26 +58,26 @@
 	
 	if (nodeCount >= 0 && nodes[0]) {
 		if (objectEnumerator) {
-			retval = nodes[nodeCount]->getData(nodes[nodeCount]);
+			retval = LGTSMDN_Data(nodes[nodeCount]);
 		} else {
-			retval = nodes[nodeCount]->getKey(nodes[nodeCount]);
+			retval = LGTSMDN_Key(nodes[nodeCount]);
 		}
 		LGTSMutableDictionaryNode *retvalNode = nodes[nodeCount];
 		
-		if (retvalNode->getRight(retvalNode)) {
+		if (LGTSMDN_Right(retvalNode)) {
 			nodeCount++;
-			nodes[nodeCount] = retvalNode->getRight(retvalNode);
-			LGTSMutableDictionaryNode *currentNode = nodes[nodeCount]->getLeft(nodes[nodeCount]);
+			nodes[nodeCount] = LGTSMDN_Right(retvalNode);
+			LGTSMutableDictionaryNode *currentNode = LGTSMDN_Left(nodes[nodeCount]);
 			while (currentNode) {
 				nodeCount++;
 				nodes[nodeCount] = currentNode;
-				currentNode = currentNode->getLeft(currentNode);
+				currentNode = LGTSMDN_Left(currentNode);
 			}
 		} else {
 			LGTSMutableDictionaryNode *currentNode = nodes[nodeCount];
 			LGTSMutableDictionaryNode *currentNodeParent = nodes[nodeCount-1];
 			
-			while(currentNodeParent->getRight(currentNodeParent) == currentNode) {
+			while(LGTSMDN_Right(currentNodeParent) == currentNode) {
 				nodeCount--;
 				currentNode = nodes[nodeCount];
 				currentNodeParent = nodes[nodeCount-1];
@@ -95,27 +95,27 @@
 	
 	while (nodeCount >= 0 && nodes[0]) {
 		if (objectEnumerator) {
-			[retval addObject:nodes[nodeCount]->getData(nodes[nodeCount])];
+			[retval addObject:LGTSMDN_Data(nodes[nodeCount])];
 		} else {
-			[retval addObject:nodes[nodeCount]->getKey(nodes[nodeCount])];
+			[retval addObject:LGTSMDN_Key(nodes[nodeCount])];
 		}
 		
 		LGTSMutableDictionaryNode *retvalNode = nodes[nodeCount];
 		
-		if (retvalNode->getRight(retvalNode)) {
+		if (LGTSMDN_Right(retvalNode)) {
 			nodeCount++;
-			nodes[nodeCount] = retvalNode->getRight(retvalNode);
-			LGTSMutableDictionaryNode *currentNode = nodes[nodeCount]->getLeft(nodes[nodeCount]);
+			nodes[nodeCount] = LGTSMDN_Right(retvalNode);
+			LGTSMutableDictionaryNode *currentNode = LGTSMDN_Left(nodes[nodeCount]);
 			while (currentNode) {
 				nodeCount++;
 				nodes[nodeCount] = currentNode;
-				currentNode = currentNode->getLeft(currentNode);
+				currentNode = LGTSMDN_Left(currentNode);
 			}
 		} else {
 			LGTSMutableDictionaryNode *currentNode = nodes[nodeCount];
 			LGTSMutableDictionaryNode *currentNodeParent = nodes[nodeCount-1];
 			
-			while(currentNodeParent->getRight(currentNodeParent) == currentNode) {
+			while(LGTSMDN_Right(currentNodeParent) == currentNode) {
 				nodeCount--;
 				currentNode = nodes[nodeCount];
 				currentNodeParent = nodes[nodeCount-1];
@@ -138,27 +138,27 @@
     
     while (nodeCount >= 0 && nodes[0] && batchCount < len) {
 		if (objectEnumerator) {
-			stackbuf[batchCount] = nodes[nodeCount]->getData(nodes[nodeCount]);
+			stackbuf[batchCount] = LGTSMDN_Data(nodes[nodeCount]);
 		} else {
-			stackbuf[batchCount] = nodes[nodeCount]->getKey(nodes[nodeCount]);
+			stackbuf[batchCount] = LGTSMDN_Key(nodes[nodeCount]);
 		}
 		
 		LGTSMutableDictionaryNode *retvalNode = nodes[nodeCount];
 		
-		if (retvalNode->getRight(retvalNode)) {
+		if (LGTSMDN_Right(retvalNode)) {
 			nodeCount++;
-			nodes[nodeCount] = retvalNode->getRight(retvalNode);
-			LGTSMutableDictionaryNode *currentNode = nodes[nodeCount]->getLeft(nodes[nodeCount]);
+			nodes[nodeCount] = LGTSMDN_Right(retvalNode);
+			LGTSMutableDictionaryNode *currentNode = LGTSMDN_Left(nodes[nodeCount]);
 			while (currentNode) {
 				nodeCount++;
 				nodes[nodeCount] = currentNode;
-				currentNode = currentNode->getLeft(currentNode);
+				currentNode = LGTSMDN_Left(currentNode);
 			}
 		} else {
 			LGTSMutableDictionaryNode *currentNode = nodes[nodeCount];
 			LGTSMutableDictionaryNode *currentNodeParent = nodes[nodeCount-1];
 			
-			while(currentNodeParent->getRight(currentNodeParent) == currentNode) {
+			while(LGTSMDN_Right(currentNodeParent) == currentNode) {
 				nodeCount--;
 				currentNode = nodes[nodeCount];
 				currentNodeParent = nodes[nodeCount-1];
