@@ -576,7 +576,7 @@ NSString *LGTSMutableDictionaryNode::graphConnections(LGTSMutableDictionaryNode 
 		[str appendFormat:@"\t\"%lx\" -> \"%lx\"[ label = \"L\" ];\n", node, getLeft(node)];
 	}
 	
-	if (getRight(this)) {
+	if (getRight(node)) {
 		[str appendFormat:@"\t\"%lx\" -> \"%lx\" [ label = \"R\" ];\n", node, getRight(node)];
 	}
 	
